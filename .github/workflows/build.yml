@@ -19,7 +19,7 @@ on:
       - '**.md'
 
 env:
-  DOCKERHUB_SLUG: 12jdlovins/docker-rtorrent-rutorrent/general
+  DOCKERHUB_SLUG: 12jdlovins/docker-rtorrent-rutorrent
 
 jobs:
   prepare:
