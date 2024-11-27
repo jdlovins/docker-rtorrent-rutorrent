@@ -19,8 +19,7 @@ on:
       - '**.md'
 
 env:
-  DOCKERHUB_SLUG: crazymax/rtorrent-rutorrent
-  GHCR_SLUG: ghcr.io/crazy-max/rtorrent-rutorrent
+  DOCKERHUB_SLUG: 12jdlovins/docker-rtorrent-rutorrent/general
 
 jobs:
   prepare:
@@ -66,7 +65,6 @@ jobs:
         with:
           images: |
             ${{ env.DOCKERHUB_SLUG }}
-            ${{ env.GHCR_SLUG }}
           tags: |
             type=match,pattern=(.*)-r,group=1
             type=ref,event=pr
@@ -102,14 +100,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      -
-        name: Login to GHCR
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    
       -
         name: Build
         id: bake
@@ -124,7 +115,7 @@ jobs:
             *.platform=${{ matrix.platform }}
             *.cache-from=type=gha,scope=build-${{ env.PLATFORM_PAIR }}
             *.cache-to=type=gha,scope=build-${{ env.PLATFORM_PAIR }},mode=max
-            *.output=type=image,"name=${{ env.DOCKERHUB_SLUG }},${{ env.GHCR_SLUG }}",push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
+            *.output=type=image,"name=${{ env.DOCKERHUB_SLUG }}",push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
       -
         name: Export digest
         run: |
@@ -168,20 +159,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       -
-        name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      -
         name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
           docker buildx imagetools create $(jq -cr '.target."docker-metadata-action".tags | map(select(startswith("${{ env.DOCKERHUB_SLUG }}")) | "-t " + .) | join(" ")' /tmp/bake-meta.json) \
             $(printf '${{ env.DOCKERHUB_SLUG }}@sha256:%s ' *)
-          docker buildx imagetools create $(jq -cr '.target."docker-metadata-action".tags | map(select(startswith("${{ env.GHCR_SLUG }}")) | "-t " + .) | join(" ")' /tmp/bake-meta.json) \
-            $(printf '${{ env.GHCR_SLUG }}@sha256:%s ' *)
       -
         name: Inspect image
         run: |
