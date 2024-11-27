@@ -264,7 +264,7 @@ RUN apk --update --no-cache add \
 
 COPY rootfs /
 
-VOLUME [ "/data", "/downloads", "/passwd" ]
+VOLUME [ "/data", "/downloads", "/passwd", "/fast" ]
 ENTRYPOINT [ "/init" ]
 
 HEALTHCHECK --interval=30s --timeout=20s --start-period=10s \
