@@ -90,7 +90,7 @@ jobs:
           targets: image
           set: |
             *.tags=
-            *.platform=${{ linux/amd64 }}
+            *.platform=linux/amd64
             *.cache-from=type=gha,scope=build-${{ env.PLATFORM_PAIR }}
             *.cache-to=type=gha,scope=build-${{ env.PLATFORM_PAIR }},mode=max
             *.output=type=image,"name=${{ env.DOCKERHUB_SLUG }}",push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
